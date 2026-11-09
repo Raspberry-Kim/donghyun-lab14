@@ -60,21 +60,22 @@ function spawnSparx(S,side){ /* 위쪽 테두리 가운데(그 자리가 점령�
 function tryMove(S,k){
   const p=S.player, d=diff(S);
   let dir=null; for(const nm of ['up','down','left','right']) if(k[nm]){ dir=nm; if(nm===p.dir) break; }
-  const fast=k.fast, slow=k.slow, hold=fast||slow;
+  /* 속도 셋: 십자키만 → 보통(2프레임에 한 칸) · X를 누른 채 → 빠름(1프레임) · Z를 누른 채 → 느림(4프레임). 둘 다 누르면 보통. 테두리를 걸을 때도 선을 그을 때도 같다 */
+  const fast=k.fast&&!k.slow, slow=k.slow&&!k.fast, period=slow?4:fast?1:2;
   if(!dir){ if(S.drawing) S.stillT++; return; }
   const [dx,dy]=DIRS[dir]; const q={x:p.x+dx,y:p.y+dy};
   if(q.x<0||q.y<0||q.x>GW||q.y>GH) { if(S.drawing) S.stillT++; return; }
   if(!S.drawing){
-    const period=2; if(++p.moveT<period) return; p.moveT=0;
+    if(++p.moveT<period) return; p.moveT=0;
     if(isBorderEdge(S,p,q)){ p.x=q.x; p.y=q.y; p.dir=dir; return; }
-    if(hold&&isInnerEdge(S,p,q)){ /* 선 긋기 시작 */
-      S.drawing=slow&&!fast?1:2; S.trail=[{x:p.x,y:p.y}]; S.trailEdges=[]; S.stillT=0; S.fuse=null;
+    if(isInnerEdge(S,p,q)){ /* 선 긋기 시작: 십자키만으로도 시작된다. Z를 누른 채면 느린 선(1), 아니면 보통·빠른 선(2) */
+      S.drawing=slow?1:2; S.trail=[{x:p.x,y:p.y}]; S.trailEdges=[]; S.stillT=0; S.fuse=null;
       S.trailEdges.push(edgeKey(p,q)); p.x=q.x; p.y=q.y; p.dir=dir; S.trail.push({x:p.x,y:p.y}); S.events.push({t:'draw'}); return; }
     return;
   }
-  /* 긋는 중: 단추를 떼면 멈춘다(도화선이 탄다) */
-  if(!hold){ S.stillT++; return; }
-  const period=S.drawing===1?4:2; if(++p.moveT<period) return; p.moveT=0;
+  /* 긋는 중: 십자키를 떼면 멈춘다(도화선이 탄다). 느린 선은 끝까지 Z를 누른 채 그어야 2배이고, 도중에 Z를 떼면 보통 선이 된다 */
+  if(S.drawing===1&&!slow){ S.drawing=2; S.events.push({t:'lineNormal'}); }
+  if(++p.moveT<period) return; p.moveT=0;
   if(isTrailEdge(S,p,q)||S.trail.some(t=>t.x===q.x&&t.y===q.y)){ S.stillT++; return; } /* 제 선은 못 넘는다 */
   if(!isInnerEdge(S,p,q)){ S.stillT++; return; }
   S.trailEdges.push(edgeKey(p,q)); p.x=q.x; p.y=q.y; p.dir=dir; S.trail.push({x:p.x,y:p.y}); S.stillT=0;

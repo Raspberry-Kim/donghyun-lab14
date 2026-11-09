@@ -1,6 +1,6 @@
 /* 동현큐 앱: 동현랭 편집기 → 출전 규약(방식·시작 단계·목숨) → 키보드·게임패드 조작. 마우스·손가락 조작은 없다. 동현램과 같은 키 배치와 저장 방식. */
 (function(){
-const HINT0='<span><kbd>X</kbd>빠른 선</span><span><kbd>Z</kbd>느린 선</span><span><kbd>A</kbd>설명</span><span><kbd>↵</kbd>메뉴</span>';
+const HINT0='<span><kbd>X</kbd>빠르게</span><span><kbd>Z</kbd>느리게(2배)</span><span><kbd>A</kbd>설명</span><span><kbd>↵</kbd>메뉴</span>';
 const $=s=>document.querySelector(s), E=window.Engine, R=window.Render, {MODES,LEVELS}=E;
 const canvas=$('#board'), g=canvas.getContext('2d');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -73,7 +73,7 @@ function parseSortie(out){
 const modeOf=c=>MODES[c.mode-1];
 function sortieCard(c){
   const m=modeOf(c);
-  $('#sortie-card').innerHTML=[['방식',`${m.id} · ${m.name}`],['시작 단계',`${c.level} → ${LEVELS}까지`],['목숨',c.lives===0?'무한':String(c.lives)],['조작','←→↑↓ 테두리 걷기 · X 빠른 선 · Z 느린 선(2배) · 키보드·게임패드만']].map(([a,b])=>`<div><span>${a}</span><strong>${b}</strong></div>`).join('');
+  $('#sortie-card').innerHTML=[['방식',`${m.id} · ${m.name}`],['시작 단계',`${c.level} → ${LEVELS}까지`],['목숨',c.lives===0?'무한':String(c.lives)],['조작','←→↑↓ 걷기·선 긋기(보통) · X 누른 채 빠르게 · Z 누른 채 느리게(2배) · 키보드·게임패드만']].map(([a,b])=>`<div><span>${a}</span><strong>${b}</strong></div>`).join('');
   $('#stamp-mode').innerHTML=`${m.name} <span>방식</span>`;
 }
 function result(text,kind){ const r=$('#result'); r.textContent=text; r.dataset.kind=kind||''; }
@@ -161,7 +161,7 @@ function startGame(c){
   S=E.newGame({mode:c.mode,level:c.level,lives:c.lives===0?Infinity:c.lives,seed:(Date.now()&0xffff)|1}); mode='play'; paused=false; closeMenu(); $('#result-card').hidden=true;
   liveUI(); $('#board-wrap').scrollIntoView({block:'nearest',behavior:reduced?'auto':'smooth'});
   $('#log').innerHTML=''; log(`${modeOf(c).name} 방식, 단계 ${c.level}에서 시작. 목숨 ${c.lives===0?'무한':c.lives}. 목표 ${modeOf(c).target}%.`);
-  $('#day').textContent=`단계 ${c.level} · ${modeOf(c).name}`; $('#tile-info').textContent=`${modeOf(c).target}%를 점령하면 다음 단계로. 느린 선(Z)은 점수 2배.`;
+  $('#day').textContent=`단계 ${c.level} · ${modeOf(c).name}`; $('#tile-info').textContent=`${modeOf(c).target}%를 점령하면 다음 단계로. Z를 누른 채 끝까지 그은 느린 선은 점수 2배.`;
   $('#hint').innerHTML=HINT0; status('진행 중'); hud();
 }
 function levelClear(ev){
@@ -280,7 +280,7 @@ document.addEventListener('keydown',e=>{
   const k=keyOf(e); if(!k) return; e.preventDefault(); if(e.repeat) return; keyDown(k);
 });
 document.addEventListener('keyup',e=>{ const k=keyOf(e); if(!k) return; keyUp(k); });
-GP.start({hint:'A 빠른 선 · B 느린 선 · Y 설명 · + 메뉴',status:t=>status(t),
+GP.start({hint:'A 빠르게 · B 느리게 · Y 설명 · + 메뉴',status:t=>status(t),
   down(k){ if(!S||tab!=='play') return; keyDown(k); }, up(k){ if(!S) return; keyUp(k); }});
 function keyDown(k){
   if(!S) return;

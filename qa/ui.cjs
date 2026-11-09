@@ -1,5 +1,5 @@
 // 화면 시험: node qa/ui.cjs (build 뒤 index.html을 파일로 연다)
-// 첫 화면·규약 오류·예제 여섯·키보드(테두리 걷기·X 빠른 선·Z 느린 선·A·Enter)·마우스로는 안 움직임·메뉴 저장 칸 3개·.dhsave·첫 화면 칸 목록·클리어 카드→다음 단계·결과 카드·전체 화면·휴대폰 띠·콘솔 오류
+// 첫 화면·규약 오류·예제 여섯·키보드(테두리 걷기·십자키 보통 선·X 빠르게·Z 느린 선·A·Enter)·마우스로는 안 움직임·메뉴 저장 칸 3개·.dhsave·첫 화면 칸 목록·클리어 카드→다음 단계·결과 카드·전체 화면·휴대폰 띠·콘솔 오류
 const {chromium}=require('/home/user/node_modules/playwright'); const path=require('path'); const assert=require('assert'); const fs=require('fs');
 const url='file://'+path.join(__dirname,'..','index.html');
 const H='window.__donghyunq';
@@ -39,8 +39,8 @@ const H='window.__donghyunq';
   await toSetup(); await p.selectOption('#example','basic'); await p.click('#run'); await p.waitForTimeout(150); await freeze(); await p.evaluate(()=>document.querySelector('#board-wrap').scrollIntoView({block:'center'}));
   await p.focus('#board-wrap'); let t=await txt(); assert.deepStrictEqual([t.player.x,t.player.y],[40,56]);
   await p.keyboard.down('ArrowLeft'); await p.waitForTimeout(350); await p.keyboard.up('ArrowLeft'); t=await txt(); assert.ok(t.player.x<35&&t.player.y===56,'← 테두리 걷기 '+JSON.stringify(t.player)); assert.strictEqual(t.drawing,0);
-  await p.keyboard.down('ArrowUp'); await p.waitForTimeout(200); await p.keyboard.up('ArrowUp'); t=await txt(); assert.strictEqual(t.player.y,56,'단추 없이 ↑는 안 들어감');
-  await p.keyboard.down('KeyX'); await p.keyboard.down('ArrowUp'); await p.waitForTimeout(300); t=await txt(); assert.strictEqual(t.drawing,2,'X 빠른 선'); assert.ok(t.player.y<50&&t.trail>3);
+  await p.keyboard.down('ArrowUp'); await p.waitForTimeout(200); await p.keyboard.up('ArrowUp'); t=await txt(); assert.strictEqual(t.drawing,2,'십자키만으로 보통 선'); assert.ok(t.player.y<56&&t.player.y>40,'보통 속도 '+JSON.stringify(t.player));
+  await p.keyboard.down('KeyX'); await p.keyboard.down('ArrowUp'); await p.waitForTimeout(300); t=await txt(); assert.strictEqual(t.drawing,2,'X 누른 채 빠르게'); assert.ok(t.player.y<40&&t.trail>8,'빠르게 '+JSON.stringify(t.player));
   await p.keyboard.up('ArrowUp'); await p.keyboard.down('ArrowRight'); await p.waitForTimeout(300); await p.keyboard.up('ArrowRight'); await p.keyboard.down('ArrowDown'); await p.waitForTimeout(600); await p.keyboard.up('ArrowDown'); await p.keyboard.up('KeyX');
   t=await txt(); assert.strictEqual(t.drawing,0,'닫힘'); assert.ok(t.pct>0&&t.score>0,'점령 '+t.pct); assert.match(await p.$eval('#log',e=>e.textContent),/칸 점령/);
   await p.keyboard.down('ArrowRight'); await p.waitForTimeout(250); await p.keyboard.up('ArrowRight'); /* 점령한 땅의 모서리를 지나 빈 땅 쪽으로 */
@@ -68,8 +68,8 @@ const H='window.__donghyunq';
   await p.click('#concede'); await mi('포기한다'); await p.click('.slot-del'); assert.strictEqual(await p.$eval('.slot-del',e=>e.textContent),'정말 지운다'); await p.click('.slot-del'); assert.strictEqual(await p.evaluate(()=>localStorage.getItem('donghyunq:slot1')),null);
   await p.setInputFiles('#load-file-setup','/tmp/q.dhsave'); await p.waitForTimeout(200); assert.strictEqual(await G('D.mode'),'play'); assert.strictEqual(await G('S.score'),savedScore); ok('첫 화면 칸 목록 · 지우기 두 번 · 파일에서 불러오기');
   // 7) 클리어 카드 → 다음 단계 · 9단계 → 결과 카드
-  await freeze(); await p.evaluate(()=>{ const S=window.__donghyunq.state, E=window.Engine; S.trail=[]; S.trailEdges=[]; S.drawing=0; S.player.x=40; S.player.y=56; }); await p.focus('#board-wrap');
-  await p.keyboard.down('KeyX'); await p.keyboard.down('ArrowUp'); await p.waitForTimeout(600); await p.evaluate(`(()=>{const D=${H}; D.keys.fast=true; D.keys.up=true; D.step(130); D.keys.fast=false; D.keys.up=false;})()`); await p.keyboard.up('ArrowUp'); await p.keyboard.up('KeyX'); t=await txt(); assert.ok(t.pct>=50&&t.pct<53,'세로로 반 '+t.pct); /* 불러온 판에 81칸(1.8%)이 이미 점령돼 있다 */
+  await freeze(); await p.evaluate(()=>{ const S=window.__donghyunq.state, E=window.Engine; S.trail=[]; S.trailEdges=[]; S.drawing=0; S.cells.fill(0); S.claimed=0; S.pct=0; S.player.x=40; S.player.y=56; }); await p.focus('#board-wrap'); /* 판을 비우고 가운데 아래에서 시작: 세로 선 하나가 정확히 반 */
+  await p.keyboard.down('KeyX'); await p.keyboard.down('ArrowUp'); await p.waitForTimeout(600); await p.evaluate(`(()=>{const D=${H}; D.keys.fast=true; D.keys.up=true; D.step(130); D.keys.fast=false; D.keys.up=false;})()`); await p.keyboard.up('ArrowUp'); await p.keyboard.up('KeyX'); t=await txt(); assert.ok(t.pct>=50&&t.pct<51,'세로로 반 '+t.pct);
   await p.evaluate(()=>{ const S=window.__donghyunq.state; S.player.x=20; S.player.y=0; }); await p.evaluate(`(()=>{const D=${H}; D.keys.fast=true; D.keys.down=true; D.step(130); D.keys.fast=false; D.keys.down=false;})()`); await p.waitForTimeout(200);
   assert.strictEqual(await G('D.mode'),'clear'); assert.ok(!(await p.$eval('#result-card',e=>e.hidden))); assert.match(await p.$eval('#result-card',e=>e.textContent),/단계 1 클리어.*7\d\.\d%.*다음은 단계 2/);
   await p.click('#rc-next'); await p.waitForTimeout(100); t=await txt(); assert.strictEqual(t.mode,'play'); assert.strictEqual(t.level,2); assert.strictEqual(t.pct,0); assert.match(await p.$eval('#day',e=>e.textContent),/단계 2 · 기본/);

@@ -50,7 +50,7 @@ function render(g,S,T){
   g.fillText('목숨 '+(S.lives===Infinity?'∞':S.lives<=5?'◆'.repeat(S.lives):'◆×'+S.lives),E.W-100,14);
   /* 아랫줄 안내 */
   g.textAlign='center'; g.font='10px Pretendard, sans-serif'; g.fillStyle=C.msg;
-  const foot=S.msgT>0?S.msg:(S.drawing?(S.drawing===1?'느린 선 — 점수 2배. 멈추면 도화선이 따라온다':'빠른 선'):'테두리를 걷다가 X(빠르게)·Z(느리게)를 누른 채 안쪽으로');
+  const foot=S.msgT>0?S.msg:(S.drawing?(S.drawing===1?'느린 선 — Z를 누른 채 끝까지 그으면 점수 2배. 멈추면 도화선이 따라온다':'보통 선 — X를 누르면 빠르게'):'테두리를 걷다가 안쪽으로 들어가면 선이 그어진다. X 빠르게 · Z 느리게');
   g.fillText(foot,E.W/2,E.H-8);
 }
 function poly(g,pts){ if(!pts||pts.length<2) return; g.beginPath(); g.moveTo(px(pts[0].x),py(pts[0].y)); for(let i=1;i<pts.length;i++) g.lineTo(px(pts[i].x),py(pts[i].y)); g.stroke(); }
