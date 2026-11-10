@@ -355,3 +355,9 @@ html.pseudo-full-on,html.pseudo-full-on body{overflow:hidden;overscroll-behavior
 /* 휴대폰: 짧게 두 번 눌러도 화면이 확대되지 않게 (동현텐과 같은 방식) */
 html{touch-action:manipulation}.stage-full,.board-stage,.touchpad,.dpad,.pad-keys,.game-menu{touch-action:manipulation;-webkit-tap-highlight-color:transparent}#board{touch-action:none;-webkit-tap-highlight-color:transparent}
 .q-board{background:#fbf7ef}
+
+/* 동현랭 후원 배지: 만든 사람 옆(동현랭 .sponsor-btn과 같은 모양) */
+.maker-note a.sponsor-btn{display:inline-flex;align-items:center;gap:.35em;margin-left:10px;vertical-align:middle;font-size:var(--text-xs);font-weight:600;line-height:1.4;padding:.25em .75em;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink);text-decoration:none;letter-spacing:0;text-transform:none}
+.maker-note a.sponsor-btn:hover{background:var(--surface2)}
+.maker-note a.sponsor-btn svg{color:#bf3989;flex:none}
+[data-theme=dark] .maker-note a.sponsor-btn{color:var(--ink)}[data-theme=dark] .maker-note a.sponsor-btn svg{color:#db61a2}
