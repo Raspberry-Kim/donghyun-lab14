@@ -942,14 +942,45 @@ const E=root.Engine, SP=root.Sprites;
 const C={paper:'#fbf7ef',hud:'#f3ecdf',empty:'#ebe5f3',emptyDot:'#ddd5ea',slow:'#bfe3d2',fast:'#c3dbf2',ink:'#4a4258',line:'#8b80a0',trailSlow:'#d98da3',trailFast:'#e8ae4a',player:'#f2b705',playerIn:'#fff3c4',fuse:'#ef6b5a',msg:'#6b6280',
   qix:['#f08aa0','#f6ad86','#efd680','#8fd1a6','#86bdeb','#b39ce8']};
 function px(x){ return E.OX+x*E.CELL; } function py(y){ return E.OY+y*E.CELL; }
+/* 판 바깥의 얇은 상아색 프레임. 실제 경계(OX·OY)는 옮기지 않는다. */
+function boardFrame(g){
+  const x=E.OX,y=E.OY,w=E.GW*E.CELL,h=E.GH*E.CELL;
+  g.save(); g.lineWidth=1; g.lineJoin='round';
+  g.fillStyle='rgba(74,66,88,.12)'; g.fillRect(x-7,y+3,w+14,h+4);
+  g.fillStyle='#b6a9ba'; g.fillRect(x-7,y-5,w+14,h+11);
+  g.fillStyle='#eee2cf'; g.fillRect(x-6,y-5,w+12,h+9);
+  g.fillStyle='#fffaf0'; g.fillRect(x-6,y-5,w+12,2); g.fillRect(x-6,y-3,2,h+5);
+  g.fillStyle='#c7b9a6'; g.fillRect(x-4,y+h+2,w+10,2); g.fillRect(x+w+4,y-3,2,h+5);
+  g.fillStyle='#a79caf'; g.fillRect(x-2,y-2,w+4,h+4);
+  /* 작은 황동 모서리. 장식은 플레이어가 걷는 경계 바깥에만 둔다. */
+  for(const [sx,sy,dx,dy] of [[x-5,y-4,1,1],[x+w+5,y-4,-1,1],[x-5,y+h+3,1,-1],[x+w+5,y+h+3,-1,-1]]){
+    g.strokeStyle='#b39a69'; g.beginPath(); g.moveTo(sx,sy+dy*10); g.lineTo(sx,sy); g.lineTo(sx+dx*10,sy); g.stroke();
+  }
+  /* 빈 판: 조용한 제도지. 점령 영역은 아래에서 이 위를 덮는다. */
+  const bg=g.createLinearGradient(x,y,x+w,y+h);
+  bg.addColorStop(0,'#f2eff7'); bg.addColorStop(1,'#e3dfef'); g.fillStyle=bg; g.fillRect(x,y,w,h);
+  g.strokeStyle='rgba(120,104,145,.065)'; g.lineWidth=1; g.beginPath();
+  for(let k=4;k<E.GW;k+=4){g.moveTo(px(k)+.5,y);g.lineTo(px(k)+.5,y+h);}
+  for(let k=4;k<E.GH;k+=4){g.moveTo(x,py(k)+.5);g.lineTo(x+w,py(k)+.5);} g.stroke();
+  /* 가장자리 1px 음영. 충돌 경계는 기존 진한 선으로 다시 그린다. */
+  g.fillStyle='rgba(74,66,88,.08)'; g.fillRect(x,y,w,1); g.fillRect(x,y,1,h);
+  g.restore();
+}
 function render(g,S,T){
   g.save(); g.imageSmoothingEnabled=false;
   g.fillStyle=C.paper; g.fillRect(0,0,E.W,E.H);
   if(S.shake>0){ g.translate((T%2?1:-1)*Math.min(2,S.shake/3),0); }
   /* 판 */
   const GW=E.GW,GH=E.GH,CELL=E.CELL;
-  g.fillStyle=C.empty; g.fillRect(E.OX,E.OY,GW*CELL,GH*CELL);
+  boardFrame(g);
   for(let y=0;y<GH;y++){ let x=0; while(x<GW){ const v=S.cells[y*GW+x]; if(!v){ x++; continue; } let x2=x; while(x2<GW&&S.cells[y*GW+x2]===v) x2++; g.fillStyle=v===1?C.slow:C.fast; g.fillRect(px(x),py(y),(x2-x)*CELL,CELL); x=x2; } }
+  /* 점령한 면의 안쪽에만 얇은 밝은 테·아래 음영. 색과 실제 점령 범위는 그대로다. */
+  for(let y=0;y<GH;y++) for(let x=0;x<GW;x++){
+    const v=S.cells[y*GW+x]; if(!v) continue;
+    if(y===0||S.cells[(y-1)*GW+x]!==v){g.fillStyle='rgba(255,255,255,.55)';g.fillRect(px(x),py(y),CELL,1);}
+    if(x===0||S.cells[y*GW+x-1]!==v){g.fillStyle='rgba(255,255,255,.35)';g.fillRect(px(x),py(y),1,CELL);}
+    if(y===GH-1||S.cells[(y+1)*GW+x]!==v){g.fillStyle='rgba(59,97,103,.18)';g.fillRect(px(x),py(y+1)-1,CELL,1);}
+  }
   /* 빈 땅의 점무늬 */
   g.fillStyle=C.emptyDot; for(let y=0;y<GH;y+=2) for(let x=(y/2)%2?1:0;x<GW;x+=2){ if(!S.cells[y*GW+x]) g.fillRect(px(x)+2,py(y)+2,1,1); }
   /* 테두리 */
