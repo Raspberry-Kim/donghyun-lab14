@@ -2,31 +2,31 @@
 (function(root){
 'use strict';
 const E=root.Engine, SP=root.Sprites;
-const C={paper:'#fbf7ef',hud:'#f3ecdf',empty:'#ebe5f3',emptyDot:'#ddd5ea',slow:'#bfe3d2',fast:'#c3dbf2',ink:'#4a4258',line:'#8b80a0',trailSlow:'#d98da3',trailFast:'#e8ae4a',player:'#f2b705',playerIn:'#fff3c4',fuse:'#ef6b5a',msg:'#6b6280',
-  qix:['#f08aa0','#f6ad86','#efd680','#8fd1a6','#86bdeb','#b39ce8']};
+const C={paper:'#f0ede3',hud:'#e5e6da',empty:'#e7ece7',emptyDot:'#cdd8d1',slow:'#a9c9b8',fast:'#b4c7d4',ink:'#344f51',line:'#849b96',trailSlow:'#ad596c',trailFast:'#a47322',player:'#d7ad51',playerIn:'#fff2cb',fuse:'#c45f4f',msg:'#526b65',
+  qix:['#c26d7f','#c88962','#b59c47','#5e9b7d','#638fae','#9280ae']};
 function px(x){ return E.OX+x*E.CELL; } function py(y){ return E.OY+y*E.CELL; }
 /* 판 바깥의 얇은 상아색 프레임. 실제 경계(OX·OY)는 옮기지 않는다. */
 function boardFrame(g){
   const x=E.OX,y=E.OY,w=E.GW*E.CELL,h=E.GH*E.CELL;
   g.save(); g.lineWidth=1; g.lineJoin='round';
-  g.fillStyle='rgba(74,66,88,.12)'; g.fillRect(x-7,y+3,w+14,h+4);
-  g.fillStyle='#b6a9ba'; g.fillRect(x-7,y-5,w+14,h+11);
-  g.fillStyle='#eee2cf'; g.fillRect(x-6,y-5,w+12,h+9);
-  g.fillStyle='#fffaf0'; g.fillRect(x-6,y-5,w+12,2); g.fillRect(x-6,y-3,2,h+5);
-  g.fillStyle='#c7b9a6'; g.fillRect(x-4,y+h+2,w+10,2); g.fillRect(x+w+4,y-3,2,h+5);
-  g.fillStyle='#a79caf'; g.fillRect(x-2,y-2,w+4,h+4);
+  g.fillStyle='rgba(45,72,69,.14)'; g.fillRect(x-7,y+3,w+14,h+4);
+  g.fillStyle='#536e6b'; g.fillRect(x-7,y-5,w+14,h+11);
+  g.fillStyle='#7c9790'; g.fillRect(x-6,y-5,w+12,h+9);
+  g.fillStyle='#b7c7b8'; g.fillRect(x-6,y-5,w+12,1); g.fillRect(x-6,y-3,1,h+5);
+  g.fillStyle='#526e6c'; g.fillRect(x-4,y+h+2,w+10,2); g.fillRect(x+w+4,y-3,2,h+5);
+  g.fillStyle='#d9dfcc'; g.fillRect(x-2,y-2,w+4,h+4);
   /* 작은 황동 모서리. 장식은 플레이어가 걷는 경계 바깥에만 둔다. */
   for(const [sx,sy,dx,dy] of [[x-5,y-4,1,1],[x+w+5,y-4,-1,1],[x-5,y+h+3,1,-1],[x+w+5,y+h+3,-1,-1]]){
-    g.strokeStyle='#b39a69'; g.beginPath(); g.moveTo(sx,sy+dy*10); g.lineTo(sx,sy); g.lineTo(sx+dx*10,sy); g.stroke();
+    g.strokeStyle='#d6bd85'; g.beginPath(); g.moveTo(sx,sy+dy*10); g.lineTo(sx,sy); g.lineTo(sx+dx*10,sy); g.stroke();
   }
   /* 빈 판: 조용한 제도지. 점령 영역은 아래에서 이 위를 덮는다. */
   const bg=g.createLinearGradient(x,y,x+w,y+h);
-  bg.addColorStop(0,'#f2eff7'); bg.addColorStop(1,'#e3dfef'); g.fillStyle=bg; g.fillRect(x,y,w,h);
-  g.strokeStyle='rgba(120,104,145,.065)'; g.lineWidth=1; g.beginPath();
+  bg.addColorStop(0,'#f1f2e8'); bg.addColorStop(1,'#e0e8e2'); g.fillStyle=bg; g.fillRect(x,y,w,h);
+  g.strokeStyle='rgba(69,103,97,.045)'; g.lineWidth=1; g.beginPath();
   for(let k=4;k<E.GW;k+=4){g.moveTo(px(k)+.5,y);g.lineTo(px(k)+.5,y+h);}
   for(let k=4;k<E.GH;k+=4){g.moveTo(x,py(k)+.5);g.lineTo(x+w,py(k)+.5);} g.stroke();
   /* 가장자리 1px 음영. 충돌 경계는 기존 진한 선으로 다시 그린다. */
-  g.fillStyle='rgba(74,66,88,.08)'; g.fillRect(x,y,w,1); g.fillRect(x,y,1,h);
+  g.fillStyle='rgba(52,79,81,.09)'; g.fillRect(x,y,w,1); g.fillRect(x,y,1,h);
   g.restore();
 }
 function render(g,S,T){
@@ -45,7 +45,7 @@ function render(g,S,T){
     if(y===GH-1||S.cells[(y+1)*GW+x]!==v){g.fillStyle='rgba(59,97,103,.18)';g.fillRect(px(x),py(y+1)-1,CELL,1);}
   }
   /* 빈 땅의 점무늬 */
-  g.fillStyle=C.emptyDot; for(let y=0;y<GH;y+=2) for(let x=(y/2)%2?1:0;x<GW;x+=2){ if(!S.cells[y*GW+x]) g.fillRect(px(x)+2,py(y)+2,1,1); }
+  g.fillStyle=C.emptyDot; for(let y=2;y<GH;y+=4) for(let x=2;x<GW;x+=4){ if(!S.cells[y*GW+x]) g.fillRect(px(x)+2,py(y)+2,1,1); }
   /* 테두리 */
   g.strokeStyle=C.ink; g.lineWidth=1.5; g.lineCap='square'; g.beginPath();
   for(let y=0;y<=GH;y++) for(let x=0;x<GW;x++){ if(E.filled(S,x,y-1)!==E.filled(S,x,y)){ g.moveTo(px(x),py(y)); g.lineTo(px(x+1),py(y)); } }
@@ -71,10 +71,11 @@ function render(g,S,T){
   g.restore();
   /* 머리줄 */
   g.fillStyle=C.hud; g.fillRect(0,0,E.W,28);
+  g.fillStyle='#bccabd';g.fillRect(12,27,E.W-24,1);
   g.fillStyle=C.ink; g.font='bold 11px Pretendard, sans-serif'; g.textBaseline='middle'; g.textAlign='left';
   g.fillText(`단계 ${S.level}`,12,14);
   g.fillText(`점령 ${S.pct.toFixed(1)}%`,66,14);
-  const bx=148,bw=100; g.fillStyle='#ddd5ea'; g.fillRect(bx,9,bw,10); g.fillStyle=C.slow; g.fillRect(bx,9,bw*Math.min(1,S.pct/100),10); g.strokeStyle=C.ink; g.lineWidth=1; g.strokeRect(bx+.5,9.5,bw-1,9);
+  const bx=148,bw=100; g.fillStyle='#ced9ce'; g.fillRect(bx,9,bw,10); g.fillStyle='#65947f'; g.fillRect(bx,9,bw*Math.min(1,S.pct/100),10); g.strokeStyle=C.ink; g.lineWidth=1; g.strokeRect(bx+.5,9.5,bw-1,9);
   g.fillStyle=C.fuse; g.fillRect(bx+bw*S.target/100-1,6,2,16);
   g.fillStyle=C.ink; g.fillText(`목표 ${S.target}%`,256,14);
   g.textAlign='right'; g.fillText(`${S.score.toLocaleString('ko-KR')}점`,E.W-12,14);
