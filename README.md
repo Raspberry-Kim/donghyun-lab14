@@ -1,4 +1,4 @@
-# 동현큐 v0.04
+# 동현큐 v0.05
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24084894.svg)](https://doi.org/10.5281/zenodo.24084894)
 
