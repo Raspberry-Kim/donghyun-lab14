@@ -10,7 +10,7 @@ let S=E.newGame({mode:1,seed:5});
 assert.strictEqual(S.cells.length,80*56); assert.strictEqual(S.claimed,0); assert.strictEqual(S.lives,3); assert.strictEqual(S.target,75);
 assert.deepStrictEqual([S.player.x,S.player.y],[40,56]); assert.strictEqual(S.qix.length,1); assert.strictEqual(S.sparx.length,2);
 assert.ok(E.onBorder(S,0,0)&&E.onBorder(S,40,56)&&!E.onBorder(S,40,28)); ok('새 판: 80×56 · 목숨 3 · 목표 75 · 아래 가운데서 시작 · 테두리 판정');
-// 2) 테두리 걷기: 2프레임에 한 점, 안쪽으로는 단추 없이 못 들어간다
+// 2) 테두리 걷기: 2프레임에 한 점, 안쪽으로는 버튼 없이 못 들어간다
 S=E.newGame({mode:1,seed:5}); noQix(S); noSparx(S);
 run(S,K({left:true}),20); assert.strictEqual(S.player.x,30); assert.strictEqual(S.drawing,0);
 run(S,K({up:true}),20); assert.deepStrictEqual([S.player.x,S.player.y,S.drawing],[30,46,2]); assert.strictEqual(S.trail.length,11); ok('테두리: 2프레임에 한 점 · 십자키만으로 안쪽에 보통 선이 그어진다');
@@ -59,7 +59,7 @@ S=E.newGame({mode:1,seed:5,lives:Infinity}); E.hit(S,'test'); E.hit(S,'test'); a
 S=E.newGame({mode:1,seed:5}); noQix(S); noSparx(S);
 run(S,K({up:true}),112); run(S,K({right:true}),80); /* 세로로 가르고 오른쪽 테두리까지: 큐 왼쪽 → 오른쪽 40×56 절반 점령 */
 assert.strictEqual(S.pct,50);
-run(S,K({up:true}),112); assert.strictEqual(S.player.y,0); run(S,K({left:true}),40); /* 빈 땅은 왼쪽 40칸: 위 테두리를 왼쪽으로 걷는다(단추를 눌러도 테두리 걷기) */
+run(S,K({up:true}),112); assert.strictEqual(S.player.y,0); run(S,K({left:true}),40); /* 빈 땅은 왼쪽 40칸: 위 테두리를 왼쪽으로 걷는다(버튼을 눌러도 테두리 걷기) */
 assert.deepStrictEqual([S.player.x,S.player.y],[20,0]); run(S,K({down:true}),112); assert.strictEqual(S.player.y,56); assert.strictEqual(S.pct,75); assert.strictEqual(S.status,'clear');
 const ev=S.events.find(e=>e.t==='clear'); assert.strictEqual(ev.bonus,0); const sc=S.score; E.nextLevel(S); assert.strictEqual(S.level,2); assert.strictEqual(S.claimed,0); assert.strictEqual(S.score,sc);
 S=E.newGame({mode:1,seed:5,level:9}); noQix(S); noSparx(S); run(S,K({up:true}),112); run(S,K({right:true}),80); run(S,K({up:true}),112); run(S,K({left:true}),60); run(S,K({down:true}),112);
