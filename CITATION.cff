@@ -2,9 +2,9 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it using the metadata below."
 title: "Donghyunq (동현큐): a single-player line-claiming laboratory in the manner of Qix, with the mode, starting level and lives set through the esoteric language Donghyun-lang"
 type: software
-version: "0.07"
+version: "0.08"
 doi: "10.5281/zenodo.24084894"
-date-released: "2026-11-12"
+date-released: "2026-11-14"
 authors:
   - family-names: Kim
     given-names: Dong Hyun
